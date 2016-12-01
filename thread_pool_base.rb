@@ -1,4 +1,5 @@
 require 'thread_error'
+require 'task/base'
 
 
 module CustomThreadPool
@@ -23,10 +24,11 @@ module CustomThreadPool
     end
 
     def set_task(&blk)
-      raise PoolError::ParamsNotProcError unless blk.is_a?(Proc)
+      task = TaskObject.new(blk)
+      #raise PoolError::ParamsNotProcError unless blk.is_a?(Proc)
       raise PoolError::QueueFullError if @queue.size >= @max_queue
       @mutex.synchronize do
-        @queue.push(blk)
+        @queue.push(task)
       end
     end
 
@@ -44,17 +46,15 @@ module CustomThreadPool
     #监控线程池中的线程是否有死掉的
     #如果有，则调用清理函数，创建新的线程
     def observe_thread
-      begin
-        Thread.new do
-          while @while_state
-            sleep(@observe_wakeup)
-            result = select_dead_thread(@thread_pool)
-            next if result.size <= 0
-            clear_dead_thread(result)
+      Thread.new do
+        while @while_state
+          sleep(@observe_wakeup)
+          result = @thread_pool.select do |val|
+            !(val.alive?)
           end
+          next if result.size <= 0
+          clear_dead_thread(result)
         end
-      rescue => error
-        raise error
       end
     end
 
@@ -80,14 +80,26 @@ module CustomThreadPool
       }
     end
 
+    def return_task(task)
+      @mutex.synchronize do
+        @queue.unshift(task)
+      end
+    end
+
     def thread_task_generate
       return Thread.new do
         while @while_state
-          task = get_task
-          if task
-            task.call
-          else
-            sleep(@thread_wakeup_time)
+          begin
+            runble = get_task
+            if runble
+              runble.task.call
+            else
+              sleep(@thread_wakeup_time)
+            end
+          rescue => error
+            raise error if runble.is_error?
+            runble.error_occur(error)
+            return_task(runble)
           end
         end
       end

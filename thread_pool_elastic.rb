@@ -20,20 +20,16 @@ module CustomThreadPool
     #如果有，则调用清理函数，创建新的线程
     def observe_thread
       Thread.new do
-        begin
-          while @while_state
-            sleep(@observe_wakeup)
-            result = select_dead_thread(@thread_pool)
-            clear_dead_thread(result) unless result > 0
-            elastic_manager_run if @queue.size >= @elastic_start_condi
-            if @elastic_pool.size > 0
-              dead_elastic = select_dead_thread(@elastic_pool)
-              clear_elastic_dead_thread(dead_elastic) unless dead_elastic.size > 0
-            end
-            #next if result.size <= 0
+        while @while_state
+          sleep(@observe_wakeup)
+          result = select_dead_thread(@thread_pool)
+          elastic_manager_run if @queue.size >= @elastic_start_condi
+          if @elastic_pool.size > 0
+            dead_elastic = select_dead_thread(@elastic_pool)
+            clear_elastic_dead_thread(dead_elastic) unless dead_elastic.size > 0
           end
-        rescue => error
-          raise error
+          next if result.size <= 0
+          clear_dead_thread(result)
         end
       end
     end
@@ -69,11 +65,17 @@ module CustomThreadPool
     def generate_elastic_thread
       thread = Thread.new do
         while @elastic_state
-          task = get_task
-          if task
-            task.call
-          else
-            death(Thread.current)
+          begin
+            runble = get_task
+            if runble
+              runble.task.call
+            else
+              death(Thread.current)
+            end
+          rescue => error
+            raise error if runble.is_error?
+            runble.error_occur(error.message)
+            return_task(runble)
           end
         end
       end

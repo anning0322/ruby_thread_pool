@@ -10,7 +10,7 @@ POOL = thread_pool
 
 300.times do
   POOL.set_task do
-
+    sleep(2)
     puts 'hello'
   end
 end
