@@ -15,34 +15,26 @@ require './thread_pool'
 
 即可进行使用，默认使用弹性模式，默认任务列队大于200后，会开始生成弹性线程，弹性线程个数默认最大值为4个，多余4个后则不会再产生弹性线程
 
-//可以自行配置参数
+```ruby
 
-//例如 thread_pool(:max_queue=>200)
+    #可以自行配置参数
+    #例如 thread_pool(:max_queue=>200)
+    #任务设定,默认插入到main Object中
 
-//任务设定,默认插入到main Object中
-
-    POOL = thread_pool
-    
+    POOL = thread_pool
     300.times do
-    
         POOL.set_task do
-        
           #这里会生成一个Proc 对象，存放到任务列队，等待线程执行
-          
           sleep(2)
-          
           puts 'here task is running'
-          
         end
-        
     end
-    
     puts 'while ending'
 
-//或者直接引入
-    
-    
+#或者直接引入
+
     require 'thread_pool_elastic' #引入弹性线程
     
     thread_pool = CustomThreadPool::Elastic.new(:max_queue=>200)
-    
+```
+
