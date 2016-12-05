@@ -1,4 +1,4 @@
-# custom_thread_pool
+# ruby_thread_pool
 
 
 看到java线程池很有趣，自己随手用ruby写了个线程池
