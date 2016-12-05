@@ -31,7 +31,10 @@ Elastic：弹性模式，生成若干个线程后，若列队中任务过多，�
         end
     end
     puts 'while ending'
-    #即可进行使用，默认使用弹性模式，默认任务列队大于200后，会开始生成弹性线程，弹性线程个数默认最大值为4个，多余4个后则不会再产生弹性线程
+    
+    #即可进行使用，默认使用弹性模式，默认任务列队大于200后，会开始生成弹性线程
+    #弹性线程个数默认最大值为4个
+    #多余4个后则不会再产生弹性线程
     
 ```
 ##自定义引入方法
@@ -42,15 +45,25 @@ Elastic：弹性模式，生成若干个线程后，若列队中任务过多，�
     
     class ThreadPool
         def initialize (config={})
-            @thread_pool = CustomThreadPool::Elastic.new(config)
+           @thread_pool = CustomThreadPool::Elastic.new(config)
         end
+        
+        def say_hello(str)
+           self.set_task do
+              puts 'hello' << str
+           end
+        end
+        
         #放入任务进入线程池队列
         def set_task(&blk)
-            @thread.set_task(&blk)
+           @thread.set_task(&blk)
         end    
     end
     
-    
+    test = ThreadPool.new
+    3.times do |val|
+        test.say_hello(val.to_s)
+    end
     
 ```
 
