@@ -20,18 +20,19 @@ require './thread_pool'
 
 POOL = thread_pool
 
-300.times do |index|#
+300.times do
 
   //此处会把任务传入列队，等待线程池去调用处理
+|
+    POOL.set_task do 
   
-  POOL.set_task do
-  
-    sleep(2)
+      sleep(2)
     
-    puts index
+      puts 'here task is running'
     
-  end
+    end
   
 end
 
 puts 'while ending'
+|
