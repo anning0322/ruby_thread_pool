@@ -19,20 +19,15 @@ require './thread_pool'
 //任务设定
 
 POOL = thread_pool
-
 300.times do
-
-  //此处会把任务传入列队，等待线程池去调用处理
-|
+    
     POOL.set_task do 
-  
+      #这里会生成一个Proc 对象，存放到任务列队，等待线程执行
       sleep(2)
-    
       puts 'here task is running'
-    
     end
   
 end
 
 puts 'while ending'
-|
+
