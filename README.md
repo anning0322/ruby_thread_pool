@@ -44,25 +44,23 @@ Elastic：弹性模式，生成若干个线程后，若列队中任务过多，�
     require 'thread_pool_elastic' #引入弹性线程
     
     class ThreadPool
-        def initialize (config={})
-           @thread_pool = CustomThreadPool::Elastic.new(config)
-        end
-        
-        def say_hello(str)
-           self.set_task do
-              puts 'hello' << str
+        @thread_pool = CustomThreadPool::Elastic.new(config)
+        class << self
+           def say_hello(str)
+              set_task do
+                 puts 'hello' << str
+              end
            end
+
+           #放入任务进入线程池队列
+           def set_task(&blk)
+              @thread.set_task(&blk)
+           end  
         end
-        
-        #放入任务进入线程池队列
-        def set_task(&blk)
-           @thread.set_task(&blk)
-        end    
     end
     
-    test = ThreadPool.new
     3.times do |val|
-        test.say_hello(val.to_s)
+        ThreadPool.say_hello(val.to_s)
     end
     
 ```
