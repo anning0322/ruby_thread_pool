@@ -76,8 +76,8 @@ module CustomThreadPool
             raise error if runble.is_error?
             runble.error_occur(error.message)
             return_task(runble)
-          end
-        end
+          end # begin结束
+        end #while结束
       end
       return thread
     end

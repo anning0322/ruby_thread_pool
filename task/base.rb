@@ -18,8 +18,10 @@ module CustomThreadPool
     end
 
     def error_occur(obj)
+      raise RuntimeError,'An error occur already in this object' if @error_state
       @error_obj = obj
       @error_state = true
+      #puts 'error occur'
     end
 
     def is_error?
