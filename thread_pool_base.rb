@@ -36,10 +36,9 @@ module CustomThreadPool
 
     #清除死亡线程
     def select_dead_thread(arr)
-      dead = arr.select do |val|
+      arr.select do |val|
         !(val.alive?)
       end
-      return dead
     end
 
     #观察者线程
