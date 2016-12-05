@@ -22,6 +22,7 @@ require './thread_pool'
 //任务设定
 
 POOL = thread_pool
+
 300.times do
     
     POOL.set_task do 
