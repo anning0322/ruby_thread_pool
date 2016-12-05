@@ -49,9 +49,10 @@ module CustomThreadPool
       Thread.new do
         while @while_state
           sleep(@observe_wakeup)
-          result = @thread_pool.select do |val|
-            !(val.alive?)
-          end
+          result = select_dead_thread(@thread_pool)
+          # result = @thread_pool.select do |val|
+          #   !(val.alive?)
+          # end
           next if result.size <= 0
           clear_dead_thread(result)
         end
