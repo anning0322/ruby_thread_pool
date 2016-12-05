@@ -19,19 +19,20 @@ require './thread_pool'
 
 //例如 thread_pool(:max_queue=>200)
 
-//任务设定
+//任务设定,默认插入到main Object中
 
-POOL = thread_pool
-
-300.times do
-    
-    POOL.set_task do 
-      #这里会生成一个Proc 对象，存放到任务列队，等待线程执行
-      sleep(2)
-      puts 'here task is running'
+    POOL = thread_pool
+    300.times do
+        POOL.set_task do 
+          #这里会生成一个Proc 对象，存放到任务列队，等待线程执行
+          sleep(2)
+          puts 'here task is running'
+        end
     end
-  
-end
+    puts 'while ending'
 
-puts 'while ending'
-
+//或者直接引入
+    
+    require 'thread_pool_elastic' #引入弹性线程
+    thread_pool = CustomThreadPool::Elastic.new(:max_queue=>200)
+    
